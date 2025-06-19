@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutri Pulse | التغذية والصحة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #3498db;
+            --accent: #9b59b6;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 5%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url('https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-4.0.3') no-repeat center center/cover;
+            color: white;
+            padding: 5rem 5%;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 4rem 5%;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+        
+        .section-title h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            background-color: var(--primary);
+            color: white;
+            font-size: 2.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .feature-content {
+            padding: 1.5rem;
+        }
+        
+        .feature-content h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        /* Calculator Section */
+        .calculator {
+            padding: 4rem 5%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        
+        .calculator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .calculator-header {
+            background-color: var(--secondary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .calculator-body {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--light);
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        /* Web3 Section */
+        .web3 {
+            padding: 4rem 5%;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+        }
+        
+        .web3-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .wallet-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        #walletAddress {
+            margin: 1rem 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .nft-gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .nft-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            width: 150px;
+        }
+        
+        .nft-card img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        /* Newsletter */
+        .newsletter {
+            padding: 4rem 5%;
+            text-align: center;
+            background-color: white;
+        }
+        
+        .newsletter-form {
+            max-width: 500px;
+            margin: 2rem auto;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 5% 2rem;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .footer-links h3 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-links h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--primary);
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: #bbb;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-right: 5px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bbb;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-wrap: wrap;
+            }
+            
+            nav {
+                width: 100%;
+                margin-top: 1rem;
+                display: none;
+            }
+            
+            nav.active {
+                display: block;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            nav li {
+                width: 100%;
+            }
+            
+            nav a {
+                display: block;
+                padding: 1rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-icon">🥗</span>
+                <h1>Nutri Pulse</h1>
+            </div>
+            <button class="mobile-menu-btn">☰</button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#features">خدماتنا</a></li>
+                    <li><a href="#calculator">حاسبة التغذية</a></li>
+                    <li><a href="#web3">المكافآت الرقمية</a></li>
+                    <li><a href="#contact">اتصل بنا</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h2>صحتك تبدأ من طبقك</h2>
+            <p>نقدم لك أحدث المعلومات والنصائح في عالم التغذية والصحة لتحقيق حياة أفضل ومتوازنة</p>
+            <div class="cta-buttons">
+                <a href="#calculator" class="btn btn-primary">احسب احتياجاتك الغذائية</a>
+                <a href="#features" class="btn btn-secondary">اكتشف خدماتنا</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>خدماتنا المتكاملة</h2>
+            <p>كل ما تحتاجه لصحة أفضل في مكان واحد</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🍎</div>
+                <div class="feature-content">
+                    <h3>خطط تغذية شخصية</h3>
+                    <p>برامج غذائية مصممة خصيصاً لك بناءً على احتياجاتك وأهدافك الصحية، سواء لإنقاص الوزن أو بناء العضلات أو الحفاظ على الصحة العامة.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-content">
+                    <h3>تتبع التقدم</h3>
+                    <p>أدوات متطورة لتتبع تقدمك اليومي في النظام الغذائي، مع تحليلات وتقارير أسبوعية لمساعدتك على البقاء في المسار الصحيح.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍⚕️</div>
+                <div class="feature-content">
+                    <h3>استشارات مع خبراء</h3>
+                    <p>تواصل مباشر مع أخصائيي التغذية المعتمدين للحصول على إجابات لاستفساراتك ونصائح مهنية لتحسين نظامك الغذائي.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nutrition Calculator -->
+    <section class="calculator" id="calculator">
+        <div class="section-title">
+            <h2>حاسبة التغذية الذكية</h2>
+            <p>اكتشف احتياجاتك اليومية من السعرات والمغذيات</p>
+        </div>
+        <div class="calculator-container">
+            <div class="calculator-header">
+                <h3>احسب احتياجاتك من السعرات الحرارية</h3>
+            </div>
+            <div class="calculator-body">
+                <div class="form-group">
+                    <label for="gender">الجنس</label>
+                    <select id="gender">
+                        <option value="male">ذكر</option>
+                        <option value="female">أنثى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="age">العمر (سنوات)</label>
+                    <input type="number" id="age" min="15" max="100" value="30">
+                </div>
+                <div class="form-group">
+                    <label for="height">الطول (سم)</label>
+                    <input type="number" id="height" min="100" max="250" value="170">
+                </div>
+                <div class="form-group">
+                    <label for="weight">الوزن (كجم)</label>
+                    <input type="number" id="weight" min="30" max="200" value="70">
+                </div>
+                <div class="form-group">
+                    <label for="activity">مستوى النشاط</label>
+                    <select id="activity">
+                        <option value="1.2">قليل الحركة (لا تمارين)</option>
+                        <option value="1.375">خفيف (تمارين 1-3 أيام/أسبوع)</option>
+                        <option value="1.55" selected>متوسط (تمارين 3-5 أيام/أسبوع)</option>
+                        <option value="1.725">نشيط (تمارين 6-7 أيام/أسبوع)</option>
+                        <option value="1.9">نشيط جداً (تمارين مرتين يومياً)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="goal">الهدف</label>
+                    <select id="goal">
+                        <option value="lose">خسارة الوزن</option>
+                        <option value="maintain" selected>الحفاظ على الوزن</option>
+                        <option value="gain">زيادة الوزن</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="calculateBtn">احسب الآن</button>
+                
+                <div class="result" id="result">
+                    <h3>نتائج الحساب</h3>
+                    <p>السعرات الحرارية اليومية: <span id="caloriesResult">2000</span> سعرة</p>
+                    <p>البروتين: <span id="proteinResult">75</span> جرام</p>
+                    <p>الكربوهيدرات: <span id="carbsResult">250</span> جرام</p>
+                    <p>الدهون: <span id="fatResult">67</span> جرام</p>
+                    <button class="btn btn-secondary" id="downloadPlan">حفظ النتائج</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Web3 Section -->
+    <section class="web3" id="web3">
+        <div class="web3-content">
+            <div class="section-title">
+                <h2>المكافآت الرقمية</h2>
+                <p>احصل على رموز غير قابلة للاستبداد (NFTs) كمكافآت لتحقيق أهدافك الصحية</p>
+            </div>
+            
+            <div class="wallet-section">
+                <h3>ربط المحفظة الرقمية</h3>
+                <p>قم بربط محفظتك الرقمية لبدء كسب رموز NFT الصحية كمكافآت</p>
+                <button class="btn btn-primary" id="connectWalletBtn">ربط المحفظة</button>
+                <div id="walletStatus"></div>
+                <div id="walletAddress"></div>
+                
+                <div class="nft-gallery" id="nftGallery">
+                    <div class="nft-card">
+                        <img src="https://via.placeholder.com/150" alt="NFT Badge">
+                        <p>بطل التغذية</p>
+                    </div>
+                    <div class="nft-card">
+                        <img src="https://via.placeholder.com/150" alt="NFT Badge">
+                        <p>متحدي الرياضة</p>
+                    </div>
+                    <div class="nft-card">
+                        <img src="https://via.placeholder.com/150" alt="NFT Badge">
+                        <p>مستشار الصحة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter" id="contact">
+        <div class="section-title">
+            <h2>انضم إلى مجتمعنا الصحي</h2>
+            <p>احصل على أحدث النصائح والعروض الحصرية مباشرة إلى بريدك</p>
+        </div>
+        <div class="newsletter-form">
+            <input type="email" placeholder="بريدك الإلكتروني">
+            <button class="btn btn-primary">اشترك الآن</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-links">
+                <div class="footer-logo">Nutri Pulse</div>
+                <p>منصة رائدة في التغذية والصحة باللغة العربية، نقدم حلولاً مبتكرة لتحسين جودة الحياة.</p>
+                <div class="social-links">
+                    <a href="#">📱</a>
+                    <a href="#">📸</a>
+                    <a href="#">🎬</a>
+                    <a href="#">💼</a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>روابط سريعة</h3>
+                <ul>
+                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#features">خدماتنا</a></li>
+                    <li><a href="#calculator">الحاسبة الذكية</a></li>
+                    <li><a href="#web3">المكافآت الرقمية</a></li>
+                    <li><a href="#contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h3>خدماتنا</h3>
+                <ul>
+                    <li><a href="#">خطط التغذية</a></li>
+                    <li><a href="#">المتابعة الأسبوعية</a></li>
+                    <li><a href="#">الاستشارات الغذائية</a></li>
+                    <li><a href="#">البرامج المتخصصة</a></li>
+                    <li><a href="#">المكتبة الصحية</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h3>تواصل معنا</h3>
+                <ul>
+                    <li>📞 +966 123 456 789</li>
+                    <li>✉️ info@nutripulse.ar</li>
+                    <li>🏢 الرياض، المملكة العربية السعودية</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2023 Nutri Pulse. جميع الحقوق محفوظة.
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.getElementById('mainNav').classList.toggle('active');
+        });
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // Close mobile menu if open
+                document.getElementById('mainNav').classList.remove('active');
+            });
+        });
+
+        // Nutrition Calculator
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            // Get values from form
+            const gender = document.getElementById('gender').value;
+            const age = parseInt(document.getElementById('age').value);
+            const height = parseInt(document.getElementById('height').value);
+            const weight = parseInt(document.getElementById('weight').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+            
+            // Calculate BMR (Basal Metabolic Rate)
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            // Calculate TDEE (Total Daily Energy Expenditure)
+            let tdee = bmr * activity;
+            
+            // Adjust based on goal
+            if (goal === 'lose') {
+                tdee -= 500; // Deficit for weight loss
+            } else if (goal === 'gain') {
+                tdee += 500; // Surplus for weight gain
+            }
+            
+            // Calculate macros (40% carbs, 30% protein, 30% fat)
+            const protein = Math.round((tdee * 0.3) / 4);
+            const carbs = Math.round((tdee * 0.4) / 4);
+            const fat = Math.round((tdee * 0.3) / 9);
+            
+            // Display results
+            document.getElementById('caloriesResult').textContent = Math.round(tdee);
+            document.getElementById('proteinResult').textContent = protein;
+            document.getElementById('carbsResult').textContent = carbs;
+            document.getElementById('fatResult').textContent = fat;
+            
+            // Show results section
+            document.getElementById('result').style.display = 'block';
+        });
+
+        // Download Plan Button
+        document.getElementById('downloadPlan').addEventListener('click', function() {
+            alert('تم حفظ خطة التغذية الخاصة بك! في النسخة الكاملة، سيتم إرسالها إلى بريدك الإلكتروني.');
+        });
+
+        // Web3 Integration
+        document.getElementById('connectWalletBtn').addEventListener('click', async function() {
+            try {
+                if (window.ethereum) {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const walletAddress = accounts[0];
+                    
+                    // Display wallet address
+                    document.getElementById('walletAddress').textContent = `عنوان محفظتك: ${walletAddress}`;
+                    document.getElementById('walletStatus').innerHTML = '<p style="color: var(--primary); margin-top: 10px;">✓ تم ربط المحفظة بنجاح!</p>';
+                    
+                    // In a full implementation, you would mint NFTs or display user's existing NFTs here
+                } else {
+                    alert('يرجى تثبيت محفظة مثل MetaMask للاستفادة من ميزات الويب 3');
+                }
+            } catch (error) {
+                console.error("Error connecting wallet:", error);
+                document.getElementById('walletStatus').innerHTML = '<p style="color: var(--danger);">حدث خطأ في الربط. يرجى المحاولة مرة أخرى.</p>';
+            }
+        });
+
+        // Simulate NFT loading
+        setTimeout(() => {
+            document.getElementById('nftGallery').innerHTML = `
+                <div class="nft-card">
+                    <img src="https://via.placeholder.com/150/2ecc71/ffffff?text=🥦" alt="NFT Badge">
+                    <p>بطل التغذية</p>
+                </div>
+                <div class="nft-card">
+                    <img src="https://via.placeholder.com/150/3498db/ffffff?text=🏃" alt="NFT Badge">
+                    <p>متحدي الرياضة</p>
+                </div>
+                <div class="nft-card">
+                    <img src="https://via.placeholder.com/150/9b59b6/ffffff?text=📊" alt="NFT Badge">
+                    <p>مستشار الصحة</p>
+                </div>
+            `;
+        }, 3000);
+    </script>
+</body>
+</html>
